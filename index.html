@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NUTRIFY · Dein täglicher Kalorienkompass</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js?v=20260912"></script>
+  </head>
+  <body>
+    <section class="auth-screen" id="auth-screen">
+      <div class="auth-panel">
+        <a class="brand" href="#"><span class="brand-mark">N</span><span>NUTRIFY</span></a>
+        <div id="setup-state">
+          <p class="eyebrow">Einmalige Einrichtung</p>
+          <h1>Verbinde deinen Account.</h1>
+          <p class="auth-copy">NUTRIFY speichert deine Ziele und Einträge sicher online. Trage hier die öffentlichen Supabase-Projektdaten ein.</p>
+          <form id="setup-form" class="auth-form" novalidate><label>Supabase Project URL / URL<input id="supabase-url" type="text" inputmode="url" placeholder="https://deinprojekt.supabase.co" /></label><label>Supabase Publishable key / anon public key<input id="supabase-key" type="text" placeholder="eyJ..." /></label><button type="submit" class="button button-dark full-width">Verbindung speichern</button></form>
+          <p class="auth-hint">Diese Werte findest du in Supabase unter Project Settings → API. Verwende den „Publishable key“ oder den alten „anon public“-Key.</p>
+        </div>
+        <div id="login-state" hidden>
+          <p class="eyebrow">Dein persönlicher Bereich</p>
+          <h1 id="auth-title">Willkommen zurück.</h1>
+          <p class="auth-copy">Melde dich an, um deine Ernährungstage und Ziele zu synchronisieren.</p>
+          <form id="auth-form" class="auth-form"><label>E-Mail<input id="auth-email" type="email" autocomplete="email" required /></label><label>Passwort<input id="auth-password" type="password" autocomplete="current-password" minlength="6" required /></label><button class="button button-dark full-width" id="auth-submit">Einloggen</button></form>
+          <button class="auth-switch" id="auth-switch">Noch kein Konto? Jetzt registrieren</button>
+          <button class="auth-reset" id="reset-config">Andere Supabase-Verbindung verwenden</button>
+        </div>
+        <p class="auth-message" id="auth-message" role="status"></p>
+      </div>
+    </section>
+    <div class="app-shell" id="app-shell" hidden>
+      <aside class="sidebar">
+        <a class="brand" href="#dashboard" aria-label="NUTRIFY Startseite">
+          <span class="brand-mark">N</span>
+          <span>NUTRIFY</span>
+        </a>
+        <p class="sidebar-label">Übersicht</p>
+        <nav class="main-nav" aria-label="Hauptnavigation">
+          <button class="nav-item active" data-view="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
+          <button class="nav-item" data-view="calendar"><span class="nav-icon">▦</span>Kalender</button>
+          <button class="nav-item" data-view="database"><span class="nav-icon">⌕</span>Lebensmittel</button>
+        </nav>
+        <div class="sidebar-note">
+          <span class="note-spark">✦</span>
+          <strong>Kleine Schritte.</strong>
+          <span>Große Wirkung.</span>
+        </div>
+          <button class="profile-mini" id="profile-button" aria-label="Kontoeinstellungen öffnen"><span class="avatar" id="profile-avatar">NU</span><span><strong id="profile-name">Mein Account</strong><small id="profile-email">Online synchronisiert</small></span><span class="profile-chevron">⌄</span></button>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div><p class="eyebrow" id="current-date-label">Heute</p><h1 id="page-title">Dein Überblick</h1></div>
+          <div class="day-picker"><button class="round-button" id="previous-day" type="button" aria-label="Vorheriger Tag">←</button><input id="selected-date" type="date" aria-label="Tag auswählen" /><button class="round-button" id="next-day" type="button" aria-label="Nächster Tag">→</button><button class="today-button" id="today-button" type="button">Heute</button></div>
+          <button class="sync-status" id="sync-status" type="button" title="Verbindung prüfen"><span class="sync-dot"></span><span id="sync-label">Online-Sync aktiv</span></button>
+          <div class="top-actions"><button class="icon-button" aria-label="Benachrichtigungen">♢<span class="notification-dot"></span></button><button class="button button-dark" data-open-log>+ Eintrag hinzufügen</button></div>
+        </header>
+
+        <section id="dashboard-view" class="view active-view">
+          <div class="hero-grid">
+            <article class="calorie-card">
+              <div class="card-heading"><div><p class="eyebrow light" id="calorie-date-label">Heute</p><h2>Dein Tagesziel</h2></div><button class="more-button" id="edit-goal" aria-label="Tagesziel ändern">✎</button></div>
+              <div class="calorie-ring" id="calorie-ring"><div class="ring-center"><strong id="calories-total">1.240</strong><span>von <b id="goal-label">2.000</b> kcal</span></div></div>
+              <div class="card-footer"><span><i class="legend-dot consumed"></i>Verzehrt <b id="consumed-label">1.240 kcal</b></span><span><i class="legend-dot remaining"></i>Übrig <b id="remaining-label">760 kcal</b></span></div>
+            </article>
+            <article class="summary-card">
+              <div class="card-heading"><div><p class="eyebrow">Heute im Blick</p><h2>Deine Makros</h2></div><span class="date-pill" id="macro-date">Heute</span></div>
+              <div class="macro-list" id="macro-list"></div>
+              <button class="text-link" data-view-link="database">Details ansehen <span>↗</span></button>
+            </article>
+          </div>
+
+          <div class="section-heading"><div><p class="eyebrow">Deine Woche</p><h2>Auf einen Blick</h2></div><button class="button button-light" data-view-link="calendar">Kalender öffnen <span>↗</span></button></div>
+          <article class="week-card"><div class="week-chart" id="week-chart"></div><div class="week-insight"><span class="insight-icon">✦</span><p><strong>Du bist gut dabei!</strong><br />Dein Wochenschnitt liegt <b>8% unter deinem Ziel.</b></p></div></article>
+
+          <div class="section-heading entries-heading"><div><p class="eyebrow" id="entries-date-label">Heute</p><h2>Deine Einträge</h2></div><button class="text-link" data-open-log>Alle anzeigen <span>→</span></button></div>
+          <div class="entries-list" id="entries-list"></div>
+        </section>
+
+        <section id="calendar-view" class="view">
+          <div class="view-intro"><div><p class="eyebrow">Verlauf</p><h2>Dein Kalender</h2><p>Behalte deine Ziele und Fortschritte im Blick.</p></div><button class="button button-dark" data-open-log>+ Eintrag hinzufügen</button></div>
+          <article class="calendar-card"><div class="calendar-toolbar"><button class="round-button" id="prev-month" aria-label="Vorheriger Monat">←</button><h3 id="calendar-month">September 2026</h3><button class="round-button" id="next-month" aria-label="Nächster Monat">→</button></div><div class="calendar-weekdays"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="calendar-legend"><span><i class="legend-dot perfect"></i>Ziel erreicht</span><span><i class="legend-dot partial"></i>Teilweise erfasst</span><span><i class="legend-dot empty"></i>Kein Eintrag</span></div></article>
+          <article class="day-summary" id="day-summary"><div><p class="eyebrow">Auswertung</p><h3 id="summary-date">Heute</h3></div><div class="summary-stat"><strong id="summary-kcal">0 kcal</strong><span>verzehrt</span></div><div class="summary-stat"><strong id="summary-entries">0</strong><span>Einträge</span></div><button class="button button-light" id="summary-dashboard">Tag öffnen <span>↗</span></button></article>
+        </section>
+
+        <section id="database-view" class="view">
+          <div class="view-intro"><div><p class="eyebrow">NUTRIFY Datenbank</p><h2>Lebensmittel finden</h2><p>Exakte Werte pro 100 g für deine Einträge.</p></div><button class="button button-dark" data-open-log>+ Eintrag hinzufügen</button></div>
+          <div class="database-toolbar"><label class="search-field"><span>⌕</span><input id="food-search" type="search" placeholder="Lebensmittel suchen ..." /></label><select id="food-category" aria-label="Kategorie filtern"><option value="all">Alle Kategorien</option><option value="breakfast">Frühstück</option><option value="lunch">Mittagessen</option><option value="snack">Snacks</option><option value="dinner">Abendessen</option></select><button class="button button-light" id="show-favorites" type="button">☆ Favoriten</button></div>
+          <div class="quick-entry"><span class="quick-entry-icon">✦</span><input id="quick-entry-input" placeholder="Schnell eingeben: 2 Eier + Toast + Butter" /><button class="button button-dark" id="quick-entry-submit" type="button">Hinzufügen</button></div>
+          <div class="recipe-strip"><div><p class="eyebrow">Deine Küche</p><h3>Eigene Rezepte</h3></div><button class="button button-light" id="new-recipe" type="button">+ Rezept</button><div class="recipe-list" id="recipe-list"></div></div>
+          <div class="food-grid" id="food-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="log-dialog"><form method="dialog" id="log-form"><button type="button" class="dialog-close" id="cancel-log" aria-label="Dialog schließen">×</button><p class="eyebrow">Neuer Eintrag</p><h2>Was hast du gegessen?</h2><label>Lebensmittel<select id="food-select"></select></label><div class="form-row"><label>Menge<input id="food-amount" type="number" min="1" value="100" required /><select id="food-unit" aria-label="Einheit"><option value="g">Gramm</option><option value="ml">Milliliter</option><option value="piece">Stück</option></select></label><label>Mahlzeit<select id="meal-select"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label></div><div class="dialog-calories"><span>Kalorien</span><strong id="dialog-calories">0 kcal</strong></div><button type="button" class="text-link custom-food-link" id="open-custom-food">+ Eigenes Lebensmittel anlegen</button><button type="button" class="text-link custom-food-link" id="toggle-favorite">☆ Zu Favoriten</button><button class="button button-dark full-width" value="default">Eintrag speichern</button></form></dialog>
+    <dialog id="custom-food-dialog"><form method="dialog" id="custom-food-form"><button type="button" class="dialog-close" id="cancel-custom-food" aria-label="Dialog schließen">×</button><p class="eyebrow">Eigenes Produkt</p><h2>Lebensmittel speichern</h2><p class="dialog-copy">Ideal für Produkte wie „Lidl Brezel“. Die Kalorien findest du auf der Verpackung.</p><div class="form-row"><label>Name<input id="custom-food-name" placeholder="Brezel" required /></label><label>Marke<input id="custom-food-brand" placeholder="Lidl" /></label></div><label>Kalorien pro 100 g<input id="custom-food-calories" type="number" min="0" required /></label><button class="button button-dark full-width" value="default">Zum Eintrag hinzufügen</button></form></dialog>
+    <dialog id="account-dialog"><form method="dialog" id="account-form"><button type="button" class="dialog-close" id="cancel-account" aria-label="Dialog schließen">×</button><p class="eyebrow">Mein Konto</p><h2>Kontoeinstellungen</h2><label>Benutzername<input id="account-name" maxlength="40" placeholder="Dein Name" /></label><p class="account-email" id="account-email"></p><p class="dialog-status" id="account-status" role="status"></p><button type="button" class="button button-light full-width" id="open-goal-setup">🎯 Ziel berechnen</button><button type="submit" class="button button-dark full-width">Änderungen speichern</button><button type="button" class="button button-quiet full-width" id="logout-button">Ausloggen</button></form></dialog>
+    <dialog id="goal-dialog"><form method="dialog" id="goal-form"><button type="button" class="dialog-close" id="cancel-goal" aria-label="Dialog schließen">×</button><p class="eyebrow">Persönliches Ziel</p><h2>Dein Kalorienziel</h2><div class="form-row"><label>Alter<input id="goal-age" type="number" min="14" max="100" value="30" /></label><label>Geschlecht<select id="goal-sex"><option value="female">Weiblich</option><option value="male">Männlich</option><option value="other">Divers</option></select></label></div><div class="form-row"><label>Größe in cm<input id="goal-height" type="number" value="170" /></label><label>Gewicht in kg<input id="goal-weight" type="number" value="70" /></label></div><label>Aktivität<select id="goal-activity"><option value="1.2">Wenig Bewegung</option><option value="1.375">Leicht aktiv</option><option value="1.55" selected>Aktiv</option><option value="1.725">Sehr aktiv</option></select></label><label>Mein Ziel<select id="goal-direction"><option value="lose">Abnehmen</option><option value="maintain">Gewicht halten</option><option value="gain">Zunehmen</option></select></label><div class="dialog-calories"><span>Empfohlenes Tagesziel</span><strong id="calculated-goal">2.000 kcal</strong></div><button type="button" class="button button-light full-width" id="calculate-goal">Berechnen</button><button class="button button-dark full-width" id="save-calculated-goal" value="default">Ziel übernehmen</button></form></dialog>
+    <dialog id="recipe-dialog"><form method="dialog" id="recipe-form"><button type="button" class="dialog-close" id="cancel-recipe" aria-label="Dialog schließen">×</button><p class="eyebrow">Meal Prep</p><h2>Rezept speichern</h2><label>Rezeptname<input id="recipe-name" placeholder="Chicken Bowl" required /></label><label>Zutaten<input id="recipe-ingredients" placeholder="150 g Hähnchen, 100 g Reis" required /></label><label>Kalorien pro Portion<input id="recipe-calories" type="number" min="0" required /></label><button class="button button-dark full-width" value="default">Rezept speichern</button></form></dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="app.js?v=20260912"></script>
+  </body>
+</html>
