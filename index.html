@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=20260912"></script>
+   
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -104,6 +104,8 @@
     <dialog id="goal-dialog"><form method="dialog" id="goal-form"><button type="button" class="dialog-close" id="cancel-goal" aria-label="Dialog schließen">×</button><p class="eyebrow">Persönliches Ziel</p><h2>Dein Kalorienziel</h2><div class="form-row"><label>Alter<input id="goal-age" type="number" min="14" max="100" value="30" /></label><label>Geschlecht<select id="goal-sex"><option value="female">Weiblich</option><option value="male">Männlich</option><option value="other">Divers</option></select></label></div><div class="form-row"><label>Größe in cm<input id="goal-height" type="number" value="170" /></label><label>Gewicht in kg<input id="goal-weight" type="number" value="70" /></label></div><label>Aktivität<select id="goal-activity"><option value="1.2">Wenig Bewegung</option><option value="1.375">Leicht aktiv</option><option value="1.55" selected>Aktiv</option><option value="1.725">Sehr aktiv</option></select></label><label>Mein Ziel<select id="goal-direction"><option value="lose">Abnehmen</option><option value="maintain">Gewicht halten</option><option value="gain">Zunehmen</option></select></label><div class="dialog-calories"><span>Empfohlenes Tagesziel</span><strong id="calculated-goal">2.000 kcal</strong></div><button type="button" class="button button-light full-width" id="calculate-goal">Berechnen</button><button class="button button-dark full-width" id="save-calculated-goal" value="default">Ziel übernehmen</button></form></dialog>
     <dialog id="recipe-dialog"><form method="dialog" id="recipe-form"><button type="button" class="dialog-close" id="cancel-recipe" aria-label="Dialog schließen">×</button><p class="eyebrow">Meal Prep</p><h2>Rezept speichern</h2><label>Rezeptname<input id="recipe-name" placeholder="Chicken Bowl" required /></label><label>Zutaten<input id="recipe-ingredients" placeholder="150 g Hähnchen, 100 g Reis" required /></label><label>Kalorien pro Portion<input id="recipe-calories" type="number" min="0" required /></label><button class="button button-dark full-width" value="default">Rezept speichern</button></form></dialog>
     <div class="toast" id="toast" role="status"></div>
+<script src="supabase-config.js?v=2"></script>
+
     <script src="app.js?v=20260912"></script>
   </body>
 </html>
